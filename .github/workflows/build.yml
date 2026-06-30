@@ -21,8 +21,7 @@ jobs:
     - name: Instalar dependencias del sistema
       run: |
         sudo apt-get update
-        sudo apt-get install -y libsqlite3-dev gapc libffi-dev libssl-dev
-        sudo apt-get install -y build-essential ccache git libncurses5:i386 libstdc++6:i386 libgtk2.0-0:i386 libpangox-1.0-0:i386 libpangoxft-1.0-0:i386 libidn11:i386
+        sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev libsqlite3-dev
         sudo apt-get install -y openjdk-17-jdk unzip zip
 
     - name: Instalar Buildozer y Cython
@@ -33,8 +32,9 @@ jobs:
     - name: Inicializar Buildozer (Crear spec)
       run: |
         buildozer init
-        # Modificar el buildozer.spec automáticamente para aceptar la licencia de Android de forma automática
+        # Configuraciones automáticas esenciales para el APK
         sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
+        sed -i 's/requirements = python3,kivy/requirements = python3,kivy,kivymd/' buildozer.spec
 
     - name: Compilar con Buildozer
       run: |
