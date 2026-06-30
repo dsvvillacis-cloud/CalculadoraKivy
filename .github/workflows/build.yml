@@ -32,17 +32,17 @@ jobs:
     - name: Inicializar Buildozer (Crear spec)
       run: |
         buildozer init
-        # Configuraciones esenciales para el APK
+        # Forzar versiones totalmente estables y compatibles de Android
         sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
         sed -i 's/requirements = python3,kivy/requirements = python3,kivy,kivymd/' buildozer.spec
+        sed -i 's/android.api = 33/android.api = 33/' buildozer.spec
+        sed -i 's/# android.ndk = 23b/android.ndk = 25b/' buildozer.spec
 
     - name: Aceptar Licencias de Android SDK de forma automática
       run: |
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
-        # Forzar la aceptación de licencias en las herramientas de Android
         yes | buildozer android pdm --add-license "android-sdk-license" || true
-        yes | buildozer android pdm --add-license "android-sdk-preview-license" || true
 
     - name: Compilar con Buildozer
       run: |
