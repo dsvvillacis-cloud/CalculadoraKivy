@@ -1,0 +1,48 @@
+name: Compilar APK de Kivy
+
+on:
+  push:
+    branches: [ "principal", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Redireccionar código
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Instalar dependencias del sistema
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsqlite3-dev gapc libffi-dev libssl-dev
+        sudo apt-get install -y build-essential ccache git libncurses5:i386 libstdc++6:i386 libgtk2.0-0:i386 libpangox-1.0-0:i386 libpangoxft-1.0-0:i386 libidn11:i386
+        sudo apt-get install -y openjdk-17-jdk unzip zip
+
+    - name: Instalar Buildozer y Cython
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython virtualenv kivy
+
+    - name: Inicializar Buildozer (Crear spec)
+      run: |
+        buildozer init
+        # Modificar el buildozer.spec automáticamente para aceptar la licencia de Android de forma automática
+        sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
+
+    - name: Compilar con Buildozer
+      run: |
+        yes | buildozer -v android debug
+      continue-on-error: false
+
+    - name: Subir APK Generado
+      uses: actions/upload-artifact@v4
+      with:
+        name: CalculadoraKivy-APK
+        path: bin/*.apk
